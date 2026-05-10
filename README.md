@@ -11,7 +11,7 @@ Benchmarks three ASR systems on 22 Bangalore locality name recordings across 5 r
 |---|---|---|---|---|
 | **Deepgram nova-2** | **0.73** | **0.31** | **13.6% (3/22)** | ~4.7s |
 | Whisper large-v3 | 0.78 | 0.28 | 13.6% (3/22) | ~24.4s (CPU) |
-| whisper-base-hindi | 1.08 | 0.54 | 0% (0/22) | ~5.9s (CPU) |
+| collabora/whisper-base-hindi | 1.08 | 0.54 | 0% (0/22) | ~5.9s (CPU) |
 
 > All WER/CER computed after Devanagari → Roman transliteration for fair multilingual comparison. See `report.md` for full analysis.
 
@@ -107,7 +107,7 @@ All clips feature conversational Hindi/Hinglish sentences embedding one Bangalor
 |---|---|---|
 | **Deepgram nova-2** | Cloud API | Baseline; real-time multilingual STT |
 | **OpenAI Whisper large-v3** | Open-source, local (CPU) | Industry-standard multilingual benchmark |
-| **collabora/whisper-base-hindi** | Open-source, local (CPU) | Whisper-base fine-tuned on Hindi via AI4Bharat's Shrutilipi dataset; tests specialized-small vs general-large tradeoff |
+| **collabora/whisper-base-hindi** | Open-source, local (CPU) | Whisper-base fine-tuned on Hindi via AI4Bharat's Shrutilipi dataset |
 
 > `ai4bharat/indicwhisper` and `ai4bharat/whisper-medium-hi` were both unavailable on HuggingFace (gated or 404) at time of testing. `collabora/whisper-base-hindi` was used as the closest publicly accessible Hindi-specialized alternative.
 
