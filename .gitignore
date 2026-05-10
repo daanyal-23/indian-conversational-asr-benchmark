@@ -1,0 +1,14 @@
+.env
+
+# Auto-generated WAV conversions — reproducible from source audio
+_converted_wav/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+
+# Virtual environments
+venv/
+env/

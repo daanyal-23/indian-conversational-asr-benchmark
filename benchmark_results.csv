@@ -1,0 +1,67 @@
+filename,condition,locality_key,model,reference,hypothesis,latency_s,wer,cer,entity_acc,entity_dist
+bg_01_electronic_city,background noise,electronic_city,deepgram,Roz Electronic City jaana padta hai yaar office ke liye mujhe.,रोज़ electronics city जाना पड़ता है यार office के लिए मुझे.,5.348,0.5455,0.1148,0,1
+bg_01_electronic_city,background noise,electronic_city,whisper,Roz Electronic City jaana padta hai yaar office ke liye mujhe.,रोज एलेक्ट्रॉनिक सिटी जाना पड़ता है यार ऑफिस के लिए मुझे,31.101,0.7273,0.2951,0,6
+bg_01_electronic_city,background noise,electronic_city,indicwhisper,Roz Electronic City jaana padta hai yaar office ke liye mujhe.,,-1.0,1.0,1.0,0,999
+bg_02_marathahalli,background noise,marathahalli,deepgram,Marathahalli signal pe bahut traffic tha yaar.,मराठा हाली signal पर बहुत traffic था यार.,3.809,0.7143,0.1778,0,5
+bg_02_marathahalli,background noise,marathahalli,whisper,Marathahalli signal pe bahut traffic tha yaar.,मारा था हल्ली सिग्नल पे बहुत ट्राफिक था यार,23.685,1.0,0.2222,0,7
+bg_02_marathahalli,background noise,marathahalli,indicwhisper,Marathahalli signal pe bahut traffic tha yaar.,,-1.0,1.0,1.0,0,999
+bg_03_silk_board,background noise,silk_board,deepgram,Yaar yeh Silk Board pe phas gaya tha mai.,,-1.0,1.0,1.0,0,999
+bg_03_silk_board,background noise,silk_board,whisper,Yaar yeh Silk Board pe phas gaya tha mai.,यार ये सिल्क बोर्ड के पास भाज़ गया था मैं,23.666,0.8889,0.375,0,3
+bg_03_silk_board,background noise,silk_board,indicwhisper,Yaar yeh Silk Board pe phas gaya tha mai.,,-1.0,1.0,1.0,0,999
+bg_04_yelahanka,background noise,yelahanka,deepgram,Aare mera dost Yelahanka mein rehta hai.,अरे मेरा दोस्त केला अंका में रहता है.,4.519,0.8571,0.2308,0,5
+bg_04_yelahanka,background noise,yelahanka,whisper,Aare mera dost Yelahanka mein rehta hai.,अरे मेरा दोस्त येला हंका में रहता है,20.379,0.8571,0.2051,0,5
+bg_04_yelahanka,background noise,yelahanka,indicwhisper,Aare mera dost Yelahanka mein rehta hai.,,-1.0,1.0,1.0,0,999
+bg_05_kr_puram_station,background noise,kr_puram_station,deepgram,Aare bhaiyya abhi to mai KR Puram station ke paas hoon.,"अरे भैया, अभी तो केहरपुरम station के पास हूं मैं यार.",2.929,0.8182,0.4259,0,4
+bg_05_kr_puram_station,background noise,kr_puram_station,whisper,Aare bhaiyya abhi to mai KR Puram station ke paas hoon.,और बहुत इंटरनेट अरे भाईया अभी तो के आरपुरम सेशन के पास हुए यार,30.847,1.0909,0.8148,0,4
+bg_05_kr_puram_station,background noise,kr_puram_station,indicwhisper,Aare bhaiyya abhi to mai KR Puram station ke paas hoon.,,-1.0,1.0,1.0,0,999
+bg_06_peenya,background noise,peenya,deepgram,Aare woh Peenya side factory area hai waha par.,अरे वह finger side factory area है वहां पर.,2.564,0.5556,0.2826,0,4
+bg_06_peenya,background noise,peenya,whisper,Aare woh Peenya side factory area hai waha par.,अरे वो पेन्या साइड फैक्टरी एरिया है महापर,23.099,0.8889,0.3913,0,1
+bg_06_peenya,background noise,peenya,indicwhisper,Aare woh Peenya side factory area hai waha par.,,-1.0,1.0,1.0,0,999
+call_01_btm_layout,phone call,btm_layout,deepgram,"Hello haan bhai, main abhi yeh BTM Layout mein hoon.",Hello हां भाई मैं अभी यह VTM layout में हूं.,3.473,0.6,0.22,0,1
+call_01_btm_layout,phone call,btm_layout,whisper,"Hello haan bhai, main abhi yeh BTM Layout mein hoon.",हेलो हां भाई मैं अभी यह वीटियम लेआउट में हूं,24.082,0.8,0.42,0,7
+call_01_btm_layout,phone call,btm_layout,indicwhisper,"Hello haan bhai, main abhi yeh BTM Layout mein hoon.",,-1.0,1.0,1.0,0,999
+call_02_sarjapur_road,phone call,sarjapur_road,deepgram,Aare bhaiyya aap kidhar ho abhi?Abhi yeh Sarjapur road ke paas aa jao.,"अरे भैया, आप किधर हो अभी? अभी ये Sarjapur road के पास आ",3.779,0.7692,0.1765,1,0
+call_02_sarjapur_road,phone call,sarjapur_road,whisper,Aare bhaiyya aap kidhar ho abhi?Abhi yeh Sarjapur road ke paas aa jao.,अरे भाईया आप किदे हो अभी अभी ये सारजापूर रोड के पास आ जाए,29.752,0.9231,0.25,0,2
+call_02_sarjapur_road,phone call,sarjapur_road,indicwhisper,Aare bhaiyya aap kidhar ho abhi?Abhi yeh Sarjapur road ke paas aa jao.,,-1.0,1.0,1.0,0,999
+call_03_bommanahalli,phone call,bommanahalli,deepgram,Bro yeh Bommanahalli side room mil raha hai yaar.,Bro ये बोमनाहली side room मिल रहा है यार.,3.585,0.4444,0.125,0,2
+call_03_bommanahalli,phone call,bommanahalli,whisper,Bro yeh Bommanahalli side room mil raha hai yaar.,ब्रो ये बोमना हली साइड रूम मिल रहा है यार,23.311,0.7778,0.25,0,6
+call_03_bommanahalli,phone call,bommanahalli,indicwhisper,Bro yeh Bommanahalli side room mil raha hai yaar.,,-1.0,1.0,1.0,0,999
+call_04_yeshwanthpur,phone call,yeshwanthpur,deepgram,Aare meri yeh train jo hai na Yeshwanthpur se hai meri train.,अरे मेरी यह train जो है ना यह यशवंतपुरा से है मेरी train.,5.034,0.3333,0.2333,0,6
+call_04_yeshwanthpur,phone call,yeshwanthpur,whisper,Aare meri yeh train jo hai na Yeshwanthpur se hai meri train.,अरे मेरी ट्रेन जो है ना यह श्वन्तिपुरा से है मेरी ट्रेन,25.873,0.5,0.3,0,5
+call_04_yeshwanthpur,phone call,yeshwanthpur,indicwhisper,Aare meri yeh train jo hai na Yeshwanthpur se hai meri train.,,-1.0,1.0,1.0,0,999
+fast_01_banashankari,fast speech,banashankari,deepgram,Bhaiyya yeh Banashankari ke paas utar do jaldi se.,"भैया, यह वन शंकरी के पास उतार दो जल्दी से.",3.674,0.6667,0.1837,0,5
+fast_01_banashankari,fast speech,banashankari,whisper,Bhaiyya yeh Banashankari ke paas utar do jaldi se.,भाईया यह बना शंकरी के पास उतार दो जल्दी से,24.083,0.6667,0.1633,0,5
+fast_01_banashankari,fast speech,banashankari,indicwhisper,Bhaiyya yeh Banashankari ke paas utar do jaldi se.,,-1.0,1.0,1.0,0,999
+fast_02_jayanagar,fast speech,jayanagar,deepgram,Haan main yeh Jayanagar se nikal raha hoon.,हाँ मैं यह भी जयनगर से निकल रहा हूँ.,3.567,0.875,0.2857,1,1
+fast_02_jayanagar,fast speech,jayanagar,whisper,Haan main yeh Jayanagar se nikal raha hoon.,हाँ मैं यह भी जयनगर से निकल रहा हूँ,21.7,0.875,0.2857,1,1
+fast_02_jayanagar,fast speech,jayanagar,indicwhisper,Haan main yeh Jayanagar se nikal raha hoon.,,-1.0,1.0,1.0,0,999
+fast_03_majestic,fast speech,majestic,deepgram,Aare yaar woh Majestic mein na bahut traffic tha udhar.,अरे यार वह magics में ना बहुत traffic था उधर.,3.182,0.7,0.2778,0,5
+fast_03_majestic,fast speech,majestic,whisper,Aare yaar woh Majestic mein na bahut traffic tha udhar.,अरे यार वो मजेस्टिक में ना बहुत ट्राफिक था उधर,26.531,0.8,0.2778,0,2
+fast_03_majestic,fast speech,majestic,indicwhisper,Aare yaar woh Majestic mein na bahut traffic tha udhar.,,-1.0,1.0,1.0,0,999
+fast_04_indiranagar,fast speech,indiranagar,deepgram,Aare bro yaar yeh Indiranagar se na meko na koi to bhi ek gift lena hai kisi ke liye.,अरे bro यार यह इंदिरा नगर से मेरे को ना कोई तो भी एक gift लेना है किसी के लिए.,4.608,0.4737,0.1786,0,6
+fast_04_indiranagar,fast speech,indiranagar,whisper,Aare bro yaar yeh Indiranagar se na meko na koi to bhi ek gift lena hai kisi ke liye.,अरे ब्रो यार ये इंदिरा नगर से में कोई तो भी गिफ्ट लेना है किसी के लिए,32.021,0.5789,0.2619,0,6
+fast_04_indiranagar,fast speech,indiranagar,indicwhisper,Aare bro yaar yeh Indiranagar se na meko na koi to bhi ek gift lena hai kisi ke liye.,,-1.0,1.0,1.0,0,999
+quiet_01_hsr_layout,quiet,hsr_layout,deepgram,"Haan bhai, main HSR Layout mein rehta hoon.",हां भाई मैं HSR layout में रहता हूं.,3.69,0.625,0.2439,1,0
+quiet_01_hsr_layout,quiet,hsr_layout,whisper,"Haan bhai, main HSR Layout mein rehta hoon.",हाँ भाई मैं HSR Layout में रहता हूँ,19.102,0.625,0.1951,1,0
+quiet_01_hsr_layout,quiet,hsr_layout,indicwhisper,"Haan bhai, main HSR Layout mein rehta hoon.",,-1.0,1.0,1.0,0,999
+quiet_02_whitefield,quiet,whitefield,deepgram,Office Whitefield side hai mera.,Office Whitefield side है मेरा.,3.311,0.0,0.0,1,0
+quiet_02_whitefield,quiet,whitefield,whisper,Office Whitefield side hai mera.,Office Whitefield Side है मेरा,13.852,0.0,0.0,1,0
+quiet_02_whitefield,quiet,whitefield,indicwhisper,Office Whitefield side hai mera.,,-1.0,1.0,1.0,0,999
+quiet_03_koramangala,quiet,koramangala,deepgram,Main Koramangala mein PG dekh raha hoon.,मैं कोरा मंगल में PG देख रहा हूं.,3.479,0.8571,0.2308,0,5
+quiet_03_koramangala,quiet,koramangala,whisper,Main Koramangala mein PG dekh raha hoon.,मैं कोरा मंगल में पीजी देख रहा हूँ,21.0,1.0,0.2821,0,5
+quiet_03_koramangala,quiet,koramangala,indicwhisper,Main Koramangala mein PG dekh raha hoon.,,-1.0,1.0,1.0,0,999
+quiet_04-rajajinagar,quiet,04_rajajinagar,deepgram,Aare bhaiyya Rajajinagar ke paas utar dena mujhe.,"अरे भैया, राजाजी नगर के पास उतार देना मुझे.",2.762,0.75,0.1458,0,5
+quiet_04-rajajinagar,quiet,04_rajajinagar,whisper,Aare bhaiyya Rajajinagar ke paas utar dena mujhe.,अरे भाईया राजाजी नगर के पास उतार देना मुझे,24.053,0.75,0.1458,0,5
+quiet_04-rajajinagar,quiet,04_rajajinagar,indicwhisper,Aare bhaiyya Rajajinagar ke paas utar dena mujhe.,,-1.0,1.0,1.0,0,999
+quiet_05_hebbal,quiet,hebbal,deepgram,Yeh Hebbal se bus mil jaayegi na?,यह हैbble से bus मिल जाएगी ना?,3.791,0.5714,0.2812,0,4
+quiet_05_hebbal,quiet,hebbal,whisper,Yeh Hebbal se bus mil jaayegi na?,ये हेबल से बस मिल जाएगी ना?,18.924,0.7143,0.25,0,2
+quiet_05_hebbal,quiet,hebbal,indicwhisper,Yeh Hebbal se bus mil jaayegi na?,,-1.0,1.0,1.0,0,999
+quiet_06_bellandur,quiet,bellandur,deepgram,Mujhe to Bellandur tak jaana hai waise.,मुझे तो बेलेन दूर तक जाना है वैसे.,3.274,0.7143,0.1842,0,5
+quiet_06_bellandur,quiet,bellandur,whisper,Mujhe to Bellandur tak jaana hai waise.,मुझे तो बेलनडूर तक जाना है वैसे,20.574,0.5714,0.1579,0,3
+quiet_06_bellandur,quiet,bellandur,indicwhisper,Mujhe to Bellandur tak jaana hai waise.,,-1.0,1.0,1.0,0,999
+whisper_01_thanisandra,whispered,thanisandra,deepgram,"Haan bhai,main Thanisandra side hoon aur thodi dair mai ghar pahuch jaunga.",हां भाई मैं अभी सनी संतरा side हूं और थोड़ी देर में घर पहुंच जाऊंगा.,3.982,1.0833,0.3562,0,7
+whisper_01_thanisandra,whispered,thanisandra,whisper,"Haan bhai,main Thanisandra side hoon aur thodi dair mai ghar pahuch jaunga.",हाँ भाई मैं अभी धनि संदरा साइड हूँ और थोड़ी देर में घर पहुँच जाओंगा,35.17,1.1667,0.3699,0,7
+whisper_01_thanisandra,whispered,thanisandra,indicwhisper,"Haan bhai,main Thanisandra side hoon aur thodi dair mai ghar pahuch jaunga.",,-1.0,1.0,1.0,0,999
+whisper_02_doddanekundi,whispered,doddanekundi,deepgram,Aare actually mera dost Doddanekundi mein rehta hai toh main uske ghar aaya hoon.,अरे actually मेरा दोस्त दो धन्य कुंडली में रहता है. तो मैं उसके घर आया हूं अभी.,2.972,1.0,0.325,0,9
+whisper_02_doddanekundi,whispered,doddanekundi,whisper,Aare actually mera dost Doddanekundi mein rehta hai toh main uske ghar aaya hoon.,हरे अक्छली मेरा दोस्त दोधन नेकुंडी में रहता है तो मैं उसके घर आया हूँ अभी,33.394,1.0,0.35,0,6
+whisper_02_doddanekundi,whispered,doddanekundi,indicwhisper,Aare actually mera dost Doddanekundi mein rehta hai toh main uske ghar aaya hoon.,,-1.0,1.0,1.0,0,999
