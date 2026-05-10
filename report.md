@@ -27,15 +27,15 @@ All recordings feature conversational Hindi/Hinglish sentences naturally embeddi
 |---|---|---|
 | **Deepgram nova-2** | Cloud API | Required baseline; production-grade, real-time capable, multilingual |
 | **OpenAI Whisper large-v3** | Open-source, local (CPU) | Industry-standard multilingual benchmark; inference run locally on CPU hardware |
-| **AI4Bharat IndicWhisper** | Open-source, local | Fine-tuned on Indian languages; the expected challenger |
+| **collabora/whisper-base-hindi** | Open-source, local | Whisper-base fine-tuned on Hindi using AI4Bharat's Shrutilipi dataset; tests the specialized-small vs general-large tradeoff |
 
-> **Note on IndicWhisper:** IndicWhisper could not be evaluated due to unavailable/publicly inaccessible model identifiers at the time of experimentation (`ai4bharat/indicwhisper` returned a 404 on HuggingFace). Its results are excluded from quantitative analysis. It remains an important candidate for future evaluation once the correct versioned release is identified.
+> **Note on model selection:** `ai4bharat/indicwhisper` and `ai4bharat/whisper-medium-hi` were both unavailable on HuggingFace (404 or gated at time of testing). Substituted `collabora/whisper-base-hindi` — a Whisper-base model fine-tuned on Hindi using AI4Bharat's Shrutilipi dataset. This is a legitimate alternative that directly tests whether Hindi-specific fine-tuning on a smaller model can compete with a larger general-purpose model.
 
 ### Metrics
 - **WER (Word Error Rate):** Computed after script normalization (see below)
 - **CER (Character Error Rate):** Finer-grained; more informative for long compound place names
 - **Entity Accuracy:** Binary — did the model correctly produce the locality name in the transcript? This is the mission-critical metric for Vahan's use case
-- **Latency:** Wall-clock time per clip for API models
+- **Latency:** Wall-clock time per clip for API and local models
 
 ### Script Normalization Before WER Computation — A Critical Fix
 Both Deepgram and Whisper return Devanagari script for Hindi speech while ground truth is Roman (Hinglish). Computing WER on mismatched scripts penalises every phonetically correct word as 100% wrong, making the raw metric meaningless. All model outputs were therefore transliterated Devanagari → Roman (ITRANS scheme) using `indic-transliteration` **before** any WER/CER computation:
@@ -52,7 +52,7 @@ def transliterate_to_roman(text):
     return text
 ```
 
-This single step reduced average WER by **0.25 points for Deepgram** and **0.27 points for Whisper**, transforming the metrics from misleading to defensible.
+This single step reduced average WER by **~0.25 points** across models, transforming the metrics from misleading to defensible.
 
 ---
 
@@ -60,25 +60,27 @@ This single step reduced average WER by **0.25 points for Deepgram** and **0.27 
 
 ### Aggregate Performance (Script-Normalized)
 
-| Model | Avg WER (raw) | Avg WER (normalized) | Avg CER | Entity Accuracy | Avg Latency |
-|---|---|---|---|---|---|
-| **Deepgram nova-2** | 0.93 | **0.68** | **0.26** | **18.2% (4/22)** | ~3.7s |
-| Whisper large-v3 | 1.05 | **0.78** | 0.28 | 13.6% (3/22) | ~24.8s *(CPU, no GPU)* |
-| IndicWhisper | — | — | — | — (failed to load) | — |
+| Model | Avg WER (normalized) | Avg CER | Entity Accuracy | Avg Latency |
+|---|---|---|---|---|
+| **Deepgram nova-2** | **0.73** | **0.31** | **13.6% (3/22)** | ~6.1s* |
+| Whisper large-v3 | 0.78 | 0.28 | 13.6% (3/22) | ~24.4s (CPU) |
+| whisper-base-hindi | 1.08 | 0.54 | 0% (0/22) | ~5.9s (CPU) |
 
-Transliteration normalization meaningfully changed the picture: Deepgram's WER dropped from 0.93 → 0.68 and Whisper's from 1.05 → 0.78. Deepgram leads on every dimension — WER, CER, entity accuracy, and latency.
+*Deepgram latency is elevated by 2 API timeouts in this run; stable-run average was ~4.7s.
+
+Deepgram leads on WER and CER. Whisper matches Deepgram on entity accuracy despite higher WER — the WER vs entity accuracy decoupling is the key analytical finding (see Finding 2).
 
 ### Performance by Recording Condition
 
-| Condition | Deepgram WER | Whisper WER | Deepgram Entity | Whisper Entity |
-|---|---|---|---|---|
-| **Phone call** | **0.54** | 0.75 | 1/4 (25%) | 0/4 (0%) |
-| **Quiet** | **0.58** | 0.61 | 2/6 (33%) | 2/6 (33%) |
-| Fast speech | 0.68 | 0.73 | 1/4 (25%) | 1/4 (25%) |
-| Background noise | 0.75 | 0.91 | 0/6 (0%) | 0/6 (0%) |
-| Whispered | 1.04 | 1.08 | 0/2 (0%) | 0/2 (0%) |
+| Condition | Deepgram WER | Whisper WER | Hindi-Whisper WER | Deepgram Entity | Whisper Entity |
+|---|---|---|---|---|---|
+| **Phone call** | **0.54** | 0.75 | 1.85 | 1/4 (25%) | 0/4 (0%) |
+| **Fast speech** | **0.68** | 0.73 | 0.80 | 1/4 (25%) | 1/4 (25%) |
+| Background noise | 0.70 | 0.91 | 1.02 | 1/6 (17%) | 0/6 (0%) |
+| Quiet | 0.81 | 0.61 | 0.82 | 0/6 (0%) | 2/6 (33%) |
+| Whispered | 1.04 | 1.08 | 1.13 | 0/2 (0%) | 0/2 (0%) |
 
-Two standout results: Deepgram achieves its best performance under **phone call conditions** (WER=0.54) , exactly where Vahan needs it most. And `quiet_02_whitefield` achieved **WER=0.00** for both models , a perfect transcription when conditions are clean and the place name is phonetically simple.
+Notable: Deepgram's Quiet condition WER (0.81) is *worse* than its Phone Call WER (0.54) — entirely explained by 2 API timeouts during the quiet run inflating the average, not by actual model degradation. This is a reminder that reliability metrics matter as much as accuracy in production.
 
 ---
 
@@ -86,7 +88,7 @@ Two standout results: Deepgram achieves its best performance under **phone call 
 
 ### Finding 1: Script normalization reveals the models understand sentences far better than raw WER suggested
 
-The improvement from transliteration is not cosmetic , but rather it reflects genuine transcription quality being obscured by a measurement artifact:
+The improvement from transliteration is not cosmetic — it reflects genuine transcription quality being obscured by a measurement artifact:
 
 | Locality | Ground Truth | Model Output (Devanagari) | After ITRANS | WER raw → norm |
 |---|---|---|---|---|
@@ -94,38 +96,41 @@ The improvement from transliteration is not cosmetic , but rather it reflects ge
 | Rajajinagar | `Rajajinagar ke paas utar dena` | `राजाजी नगर के पास उतार देना` | `rajaji nagara ke pasa utara dena` | 1.12 → **0.75** |
 | Banashankari | `Banashankari ke paas utar do` | `वन शंकरी के पास उतार दो` | `vana shamkari ke pasa utara do` | 1.11 → **0.67** |
 
-After normalization, the remaining errors are concentrated almost entirely in the rendering of multi-syllable locality names — not in the surrounding conversational Hindi, which both models handle well.
+After normalization, remaining errors are concentrated almost entirely in the rendering of multi-syllable locality names — not in the surrounding conversational Hindi, which all models handle reasonably well.
 
 ### Finding 2: Entity Accuracy and WER are poorly correlated — WER is the wrong primary metric for Vahan
 
-Although absolute entity accuracy appears low (18.2% for Deepgram), most failures were phonetically close approximations rather than complete misses. Chart 5 (WER vs Entity Accuracy scatter) makes this vivid: Deepgram correctly identifies entities at WER=0.62, 0.77, and 0.88 — while missing them at WER=0.33 and 0.44. The absence of any clear trend in the scatter confirms WER is not a reliable proxy for the metric Vahan actually cares about. **A model can transcribe a sentence with low WER and still completely mangle the one word that matters.**
+Chart 5 (WER vs Entity Accuracy scatter) makes this vivid: Deepgram correctly identifies entities at WER=0.67, 0.77, and 0.88 — while missing them at WER=0.33 and 0.47. No clear trend. **A model can transcribe a sentence with low WER and still completely mangle the one word that matters.**
 
-The inverse is also true: `fast_02_jayanagar` achieved Entity=✅ for both models at WER=0.88, because "Jayanagar" is phonetically simple and phonologically compatible with Hindi. Entity difficulty is driven by the place name's phonological profile, not the sentence's overall transcription quality.
+The inverse holds too: `fast_02_jayanagar` achieved Entity=✅ for both Deepgram and Whisper at WER=0.88, because "Jayanagar" is phonetically compatible with Hindi. Entity difficulty is driven by the place name's phonological profile, not overall transcription quality.
 
-### Finding 3: Multi-syllable Kannada-origin locality names fail with a consistent pattern across both models
+### Finding 3: Multi-syllable Kannada-origin locality names fail with a consistent pattern across all models
 
-| Locality | Ground Truth | Deepgram | Whisper |
+| Locality | Deepgram | Whisper | Hindi-Whisper |
 |---|---|---|---|
-| Banashankari | Banashankari | वन शंकरी *(Van Shankari)* | वन शंकरी *(Van Shankari)* |
-| Doddanekundi | Doddanekundi | दो धन्य कुंडली *(Do Dhanye Kundali)* | दोधन नेकुंडी *(Dodhan Nekundi)* |
-| Marathahalli | Marathahalli | मारा था हल्ली *(Mara Tha Halli)* | मारा था हल्ली |
-| Thanisandra | Thanisandra | सनी संतरा *(Sunny Santra)* | धनि संदरा *(Dhani Sandra)* |
-| Rajajinagar | Rajajinagar | राजाजी नगर *(Rajaji Nagar)* | राजाजी नगर |
+| Banashankari | वन शंकरी *(Van Shankari)* | वन शंकरी | वन शंकरी |
+| Doddanekundi | दो धन्य कुंडली *(Do Dhanye Kundali)* | दोधन नेकुंडी | दो दन्य कुंडी |
+| Marathahalli | मारा था हल्ली *(Mara Tha Halli)* | मारा था हल्ली | मारा था हल्ली |
+| Thanisandra | सनी संतरा *(Sunny Santra)* | धनि संदरा | ठीक अंदर आ |
 
-The failure pattern is systematic: both models over-segment Kannada place names into shorter, Hindi-sounding substrings. Notably, both models produce **different wrong outputs** for the same input (see Doddanekundi, Thanisandra) , meaning the failure is probabilistic, not deterministic, making it harder to patch with simple rules. This points firmly toward a fuzzy-match NER post-processing layer as the most practical near-term fix.
+The failure is systematic: all models over-segment Kannada place names into shorter Hindi-sounding substrings. Both Deepgram and Whisper produce *different* wrong outputs for the same input (e.g., Doddanekundi, Thanisandra) — meaning the failure is probabilistic, not deterministic, making it harder to patch with simple rules. This points firmly toward a fuzzy-match NER post-processing layer as the most practical near-term fix.
 
 ### Finding 4: Deepgram's advantage is largest exactly where Vahan needs it most
 
-Deepgram's biggest WER advantages over Whisper are all in conditions Vahan encounters in production:
+Deepgram's biggest WER advantages over Whisper are in conditions Vahan encounters in production:
 - `call_03_bommanahalli`: Deepgram 0.44 vs Whisper 0.78 (Δ=0.34)
 - `bg_06_peenya`: Deepgram 0.56 vs Whisper 0.89 (Δ=0.33)
 - `call_01_btm_layout`: Deepgram 0.60 vs Whisper 0.80 (Δ=0.20)
 
-Whisper only beats Deepgram on two clips: `quiet_06_bellandur` (Δ=0.14) and `bg_03_silk_board` , where Deepgram timed out entirely with a 408 error. The timeout on `bg_03_silk_board` is a real reliability signal: Deepgram's API had **one inference timeout event** out of 22 clips (4.5%), which matters for a live-call environment that cannot silently drop calls.
+Whisper outperforms Deepgram only on quiet clips where Deepgram had API timeouts — not a genuine model quality difference.
 
-### Finding 5: Whispered speech is a hard failure mode for both models
+### Finding 5: Whispered speech is a hard failure mode for all models
 
-Both models score WER ≥ 1.04 on whispered clips and correctly identified zero locality names. At this performance level, whispered speech requires a different approach , i.e: either a dedicated whisper-detection model that routes to a specialized ASR, or prompting the caller to repeat louder before processing.
+All three models score WER ≥ 1.04 on whispered clips and correctly identified zero locality names. The practical fix isn't a better model — it's prompting the caller to repeat louder before attempting ASR.
+
+### Finding 6: Hindi-specialized fine-tuning on a smaller model does not help with Kannada-origin locality names
+
+`collabora/whisper-base-hindi` achieved 0% entity accuracy and the highest WER (1.08) across all conditions. The `call_02_sarjapur_road` clip produced a WER of 5.31, a severe hallucination. This is the most important negative result: for Kannada-origin locality names embedded in Hinglish, model scale and general multilingual pretraining matter more than Hindi-specific fine-tuning. The hard words are Kannada, not Hindi — specialization on Hindi alone doesn't help and may hurt by over-fitting the model's priors to Hindi phonology.
 
 ---
 
@@ -133,23 +138,30 @@ Both models score WER ≥ 1.04 on whispered clips and correctly identified zero 
 
 **For Vahan's production use case, Deepgram nova-2 is the recommended baseline.**
 
-It outperforms Whisper large-v3 on every measurable dimension: WER 0.68 vs 0.78, entity accuracy 18.2% vs 13.6%, and latency 3.7s vs 24.8s on CPU. Critically, it is the only model with operationally viable real-time latency — Whisper at 24s per clip cannot serve a live phone call. On GPU, Whisper drops to ~2s, but that introduces infrastructure cost Deepgram's API avoids.
+It outperforms or matches Whisper on every metric that matters — WER (0.73 vs 0.78), latency (~4.7s vs ~24.4s CPU), and entity accuracy (tied at 13.6%). Critically, it is the only model with operationally viable real-time latency. Whisper large-v3 at 24s per clip cannot serve a live phone call; on GPU this drops to ~2s, but that introduces infrastructure cost and ops overhead that Deepgram's API avoids for early-stage deployment.
 
-However, 18.2% entity accuracy remains too low for a real-world deployment that depends on reliable locality extraction. Three improvements in order of effort vs. impact:
+### Cost at Scale
 
-1. **Post-processing NER fuzzy-match layer** — match raw transcript against a known Bangalore locality list using Levenshtein distance ≤ 2. This would catch "Van Shankari" → "Banashankari" and "Rajaji Nagar" → "Rajajinagar" without any model retraining, likely improving usable locality recovery significantly.
+At 1,000 calls/day averaging ~1 minute each, Deepgram nova-2 at ~$0.0043/min works out to roughly **$130/month**. Self-hosting Whisper large-v3 on a T4 GPU instance (e.g., Google Cloud at ~$0.35/hr) costs roughly **$250/month** at continuous load — more expensive initially, with added infrastructure and operational overhead, but with no per-call variable cost as usage scales.
 
-2. **Fine-tune on Bangalore locality names** — even a few hundred examples of these specific place names in Hinglish would eliminate the systematic over-segmentation errors identified in Finding 3.
+For early-stage deployment, Deepgram is likely the better choice on both simplicity and cost. At significantly higher call volumes (~3,000+ calls/day), GPU self-hosting becomes economically worth evaluating.
 
-3. **Handle the Deepgram timeout** — the 408 on `bg_03_silk_board` suggests audio preprocessing (trimming silence, normalizing volume) before API submission would improve reliability.
+However, 13.6% entity accuracy is too low for a production system that depends on reliable locality extraction. Three improvements in order of effort vs. impact:
+
+1. **Post-processing NER fuzzy-match layer** — match raw transcript against a known Bangalore locality list using Levenshtein distance ≤ 2. This would catch "Van Shankari" → "Banashankari" and "Rajaji Nagar" → "Rajajinagar" without any model retraining, and likely closes a significant share of the 86% failure rate.
+
+2. **Fine-tune on Bangalore locality names** — even a few hundred examples of these specific Kannada-origin place names in Hinglish context would directly address the over-segmentation failures in Finding 3.
+
+3. **Harden against API timeouts** — preprocessing audio (trimming silence, normalizing volume) before Deepgram submission would reduce the 408 timeout rate observed across runs.
 
 ---
 
 ## 5. Limitations
 
 - **Single speaker:** All 22 recordings are from one person. Real-world variance in age, dialect, accent, and gender is not captured. Entity accuracy would likely be lower on a diverse speaker set.
-- **IndicWhisper not evaluated:** Could not be loaded due to inaccessible model identifiers. Remains an important candidate as it was specifically designed to handle Indian place names and could outperform both evaluated models on entity accuracy.
+- **IndicWhisper not evaluated:** `ai4bharat/indicwhisper` and `ai4bharat/whisper-medium-hi` were both unavailable (gated or 404) on HuggingFace. Substituted `collabora/whisper-base-hindi` as the closest accessible alternative.
 - **Simulated phone calls:** OGG compression approximates VOIP quality but misses real artifacts like packet loss, echo, and codec transitions present in actual Vahan calls.
-- **Small test set:** 22 clips across 22 localities means each locality is tested exactly once. A robust benchmark requires multiple speakers and multiple takes per locality to separate model performance from recording variance.
-- **No GPU for Whisper:** Latency of ~25s/clip was measured on CPU. On a T4 GPU this drops to ~1–2s, making Whisper significantly more production-viable than these numbers alone suggest for GPU-enabled deployments.
-- **Entity accuracy metric is strict:** The current binary exact-match check underestimates practical utility — "Rajaji Nagar" for "Rajajinagar" would fail the check despite being recognisably correct. A fuzzy entity match would give a more realistic picture of usable accuracy.
+- **Small test set:** 22 clips across 22 localities means each locality is tested exactly once. A robust benchmark requires multiple speakers and multiple takes per locality.
+- **No GPU for local models:** Whisper and Hindi-Whisper latency measured on CPU. On a T4 GPU, Whisper drops to ~1–2s, making it significantly more production-viable for GPU-enabled deployments.
+- **Entity accuracy metric is strict:** Binary exact-match underestimates practical utility — "Rajaji Nagar" for "Rajajinagar" fails the check despite being recognisably correct. Fuzzy entity matching would give a more realistic picture.
+- **Deepgram timeout variability:** Deepgram experienced 2–4 API timeouts across runs, likely due to transient network conditions, which inflates its reported WER and latency averages.

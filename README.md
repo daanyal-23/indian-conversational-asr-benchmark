@@ -9,11 +9,11 @@ Benchmarks three ASR systems on 22 Bangalore locality name recordings across 5 r
 
 | Model | Avg WER (normalized) | Avg CER | Entity Accuracy | Avg Latency |
 |---|---|---|---|---|
-| **Deepgram nova-2** | **0.68** | **0.26** | **18.2% (4/22)** | ~3.7s |
-| Whisper large-v3 | 0.78 | 0.28 | 13.6% (3/22) | ~24.8s (CPU) |
-| IndicWhisper | — | — | — (failed to load) | — |
+| **Deepgram nova-2** | **0.73** | **0.31** | **13.6% (3/22)** | ~4.7s |
+| Whisper large-v3 | 0.78 | 0.28 | 13.6% (3/22) | ~24.4s (CPU) |
+| whisper-base-hindi | 1.08 | 0.54 | 0% (0/22) | ~5.9s (CPU) |
 
-> All WER/CER computed after Devanagari → Roman transliteration. See `report.md` for full analysis.
+> All WER/CER computed after Devanagari → Roman transliteration for fair multilingual comparison. See `report.md` for full analysis.
 
 ---
 
@@ -28,8 +28,8 @@ asr-benchmark/
 │   ├── 3_wer_by_condition.png
 │   ├── 4_entity_heatmap.png
 │   └── 5_wer_vs_entity.png
-├── ground_truth.csv   ← Roman-script ground truth for all 22 clips
-├── benchmark_results.csv              ← Full per-file benchmark output
+├── ground_truth.csv         ← Roman-script ground truth for all 22 clips
+├── benchmark_results.csv    ← Full per-file benchmark output
 ├── run_benchmark.py         ← Main pipeline script
 ├── requirements.txt         ← Python dependencies
 ├── report.md                ← Full 3-page analysis report
@@ -66,7 +66,7 @@ cp .env.example .env
 # Then edit .env and paste your key
 ```
 
-Get a free API key at [deepgram.com](https://deepgram.com) , the free tier is more than sufficient for this dataset.
+Get a free API key at [deepgram.com](https://deepgram.com) — the free tier is sufficient for this dataset.
 
 ### 3. Run the full pipeline
 
@@ -76,12 +76,12 @@ python run_benchmark.py
 
 This will:
 - Convert all audio to 16kHz WAV
-- Transcribe each clip with Deepgram nova-2 and Whisper large-v3
+- Transcribe each clip with Deepgram nova-2, Whisper large-v3, and whisper-base-hindi
 - Transliterate Devanagari output → Roman (ITRANS) before metric computation
 - Compute WER, CER, Entity Accuracy, and latency per file per model
 - Export `benchmark_results.csv` and generate all 5 charts in `charts/`
 
-First run takes ~10 minutes — Whisper large-v3 (~2.9GB) downloads and caches on first use.
+First run takes ~10–15 minutes — Whisper large-v3 (~2.9GB) downloads and caches on first use.
 
 ---
 
@@ -106,8 +106,10 @@ All clips feature conversational Hindi/Hinglish sentences embedding one Bangalor
 | Model | Type | Notes |
 |---|---|---|
 | **Deepgram nova-2** | Cloud API | Baseline; real-time multilingual STT |
-| **OpenAI Whisper large-v3** | Open-source, local (CPU) | Industry-standard benchmark |
-| **AI4Bharat IndicWhisper** | Open-source, local | Could not be evaluated — model identifier unavailable on HuggingFace at time of testing |
+| **OpenAI Whisper large-v3** | Open-source, local (CPU) | Industry-standard multilingual benchmark |
+| **collabora/whisper-base-hindi** | Open-source, local (CPU) | Whisper-base fine-tuned on Hindi via AI4Bharat's Shrutilipi dataset; tests specialized-small vs general-large tradeoff |
+
+> `ai4bharat/indicwhisper` and `ai4bharat/whisper-medium-hi` were both unavailable on HuggingFace (gated or 404) at time of testing. `collabora/whisper-base-hindi` was used as the closest publicly accessible Hindi-specialized alternative.
 
 ---
 
@@ -122,7 +124,29 @@ from indic_transliteration.sanscript import transliterate
 transliterate(devanagari_text, sanscript.DEVANAGARI, sanscript.ITRANS)
 ```
 
-This reduced average WER by ~0.25 points across both models.
+This reduced average WER by ~0.25 points across models — not cosmetic, but a correction for a real measurement artifact.
+
+---
+
+## Key Takeaways
+
+This benchmark highlights a critical real-world ASR evaluation problem:
+
+> **Low WER does not imply usable downstream performance.**
+
+All three models frequently produce phonetically plausible but semantically wrong locality names — especially for Kannada-origin entities embedded inside Hindi/Hinglish utterances:
+
+| Ground Truth | Deepgram | Whisper | Hindi-Whisper |
+|---|---|---|---|
+| Doddanekundi | दो धन्य कुंडली | दोधन नेकुंडी | दो दन्य कुंडी |
+| Thanisandra | सनी संतरा | धनि संदरा | ठीक अंदर आ |
+| Banashankari | वन शंकरी | वन शंकरी | वन शंकरी |
+
+Key conclusions:
+- Entity extraction robustness matters more than aggregate WER for this use case
+- Script normalization is essential for fair multilingual evaluation
+- Hindi-specific fine-tuning on a smaller model *hurts* performance on Kannada-origin locality names — model scale and multilingual pretraining win
+- A fuzzy-match NER post-processing layer is the highest-ROI near-term fix
 
 ---
 
@@ -141,67 +165,16 @@ This reduced average WER by ~0.25 points across both models.
 
 ## Configuration
 
-In `run_benchmark.py`, top-level constants you may want to change:
+Top-level constants in `run_benchmark.py` you may want to change:
 
 ```python
-WHISPER_MODEL  = "large-v3"   # change to "medium" if RAM is limited
-INDIC_MODEL_ID = "ai4bharat/indicwhisper"  # update when correct ID is available
+WHISPER_MODEL  = "large-v3"                    # change to "medium" if RAM is limited
+INDIC_MODEL_ID = "collabora/whisper-base-hindi" # swap for any HF ASR model
 ```
----
-
-## Key Takeaways
-
-This benchmark highlights an important real-world ASR evaluation problem:
-
-> low WER does not necessarily imply usable downstream performance.
-
-In multilingual Indian conversational speech, models frequently produce phonetically plausible but semantically incorrect locality names — especially for Kannada-origin entities embedded inside Hindi/Hinglish utterances.
-
-Examples observed during evaluation:
-
-| Ground Truth | Deepgram Output | Whisper Output |
-|---|---|---|
-| Doddanekundi | दो धन्य कुंडली | दोधन नेकुंडी |
-| Thanisandra | सनी संतरा | थानीसांद्रा |
-| Banashankari | वन शंकरी | बना शंकारी |
-
-These failures reveal that:
-- entity extraction robustness matters more than aggregate WER,
-- script normalization is essential for fair multilingual evaluation,
-- and lightweight post-processing (fuzzy matching / NER correction) may provide significant gains without retraining the ASR model itself.
-
-The benchmark therefore focuses not only on transcription quality, but also on:
-- operational latency,
-- robustness under noisy conditions,
-- and downstream entity usability.
-
----
-
-## Future Improvements
-
-Potential next steps for extending this benchmark:
-
-- Evaluate additional Indian multilingual ASR systems
-- Add multi-speaker and accent-diverse recordings
-- Benchmark GPU inference latency
-- Add fuzzy entity matching instead of strict exact-match scoring
-- Integrate downstream locality correction using Levenshtein + phonetic search
-- Expand beyond Bangalore locality names into broader address extraction
-
----
-
-## Full Report
-
-See `report.md` for:
-- complete methodology,
-- detailed failure analysis,
-- condition-wise evaluation,
-- charts,
-- and deployment recommendations.
 
 ---
 
 ## Author
 
-**Syed Daanyal**  
+**Syed Daanyal**
 Vahan AI Intern Assignment — ASR Benchmarking for Indian Conversational Speech

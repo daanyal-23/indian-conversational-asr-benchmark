@@ -37,14 +37,14 @@ load_dotenv()
 
 # ── CONFIG ────────────────────────────────────────────────────────────────────
 AUDIO_DIR       = Path("audio files")
-GROUND_TRUTH    = Path("ground_truth_fixed.csv")
-OUTPUT_CSV      = Path("results.csv")
+GROUND_TRUTH    = Path("ground_truth.csv")
+OUTPUT_CSV      = Path("benchmark_results.csv")
 CHARTS_DIR      = Path("charts")
 CONVERTED_DIR   = Path("_converted_wav")   # temp 16kHz WAVs
 
 DEEPGRAM_KEY    = os.environ.get("DEEPGRAM_API_KEY", "")
 WHISPER_MODEL   = "large-v3"               # change to "medium" if RAM is tight
-INDIC_MODEL_ID  = "ai4bharat/indicwhisper" # HuggingFace model ID
+INDIC_MODEL_ID  = "collabora/whisper-base-hindi" # HuggingFace model ID
 
 # Locality keyword for entity-accuracy check (mapped from filename stem)
 LOCALITY_MAP = {
