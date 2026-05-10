@@ -28,7 +28,7 @@ asr-benchmark/
 │   ├── 3_wer_by_condition.png
 │   ├── 4_entity_heatmap.png
 │   └── 5_wer_vs_entity.png
-├── ground_truth_fixed.csv   ← Roman-script ground truth for all 22 clips
+├── ground_truth.csv   ← Roman-script ground truth for all 22 clips
 ├── benchmark_results.csv              ← Full per-file benchmark output
 ├── run_benchmark.py         ← Main pipeline script
 ├── requirements.txt         ← Python dependencies
@@ -147,3 +147,61 @@ In `run_benchmark.py`, top-level constants you may want to change:
 WHISPER_MODEL  = "large-v3"   # change to "medium" if RAM is limited
 INDIC_MODEL_ID = "ai4bharat/indicwhisper"  # update when correct ID is available
 ```
+---
+
+## Key Takeaways
+
+This benchmark highlights an important real-world ASR evaluation problem:
+
+> low WER does not necessarily imply usable downstream performance.
+
+In multilingual Indian conversational speech, models frequently produce phonetically plausible but semantically incorrect locality names — especially for Kannada-origin entities embedded inside Hindi/Hinglish utterances.
+
+Examples observed during evaluation:
+
+| Ground Truth | Deepgram Output | Whisper Output |
+|---|---|---|
+| Doddanekundi | दो धन्य कुंडली | दोधन नेकुंडी |
+| Thanisandra | सनी संतरा | थानीसांद्रा |
+| Banashankari | वन शंकरी | बना शंकारी |
+
+These failures reveal that:
+- entity extraction robustness matters more than aggregate WER,
+- script normalization is essential for fair multilingual evaluation,
+- and lightweight post-processing (fuzzy matching / NER correction) may provide significant gains without retraining the ASR model itself.
+
+The benchmark therefore focuses not only on transcription quality, but also on:
+- operational latency,
+- robustness under noisy conditions,
+- and downstream entity usability.
+
+---
+
+## Future Improvements
+
+Potential next steps for extending this benchmark:
+
+- Evaluate additional Indian multilingual ASR systems
+- Add multi-speaker and accent-diverse recordings
+- Benchmark GPU inference latency
+- Add fuzzy entity matching instead of strict exact-match scoring
+- Integrate downstream locality correction using Levenshtein + phonetic search
+- Expand beyond Bangalore locality names into broader address extraction
+
+---
+
+## Full Report
+
+See `report.md` for:
+- complete methodology,
+- detailed failure analysis,
+- condition-wise evaluation,
+- charts,
+- and deployment recommendations.
+
+---
+
+## Author
+
+**Syed Daanyal**  
+Vahan AI Intern Assignment — ASR Benchmarking for Indian Conversational Speech
